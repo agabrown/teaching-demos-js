@@ -1,1 +1,5 @@
-theme: jekyll-theme-slate
+remote_theme: pages-themes/minimal
+plugins:
+- jekyll-remote-theme
+title: Teaching demos
+description: Interactive demos to support teaching
