@@ -22,7 +22,7 @@ var camRotZMin = -180;
 var camRotZMax = 180;
 var camRotZStep = 1;
 
-var alpha = 75;
+var alpha = 65;
 var alphaMin = 0;
 var alphaMax = 360;
 var alphaStep = 1;
@@ -36,8 +36,8 @@ var pvec, qvec, rvec, origin, sourcevec;
 
 var explanationText;
 var explain;
-var showHelp = true;
-var helpVisible = true;
+var showHelp = false;
+var helpVisible = false;
 var helpButton;
 
 var showTangentPlane = true;
@@ -115,7 +115,7 @@ var sketch = function (p) {
         p.push()
 
         // XYZ axes of the ICRS
-        p.strokeWeight(1);
+        p.strokeWeight(2);
         p.stroke(0);
         p.line(0, 0, 0, REF_PLANE_RADIUS * 1.1, 0, 0);
         p.push()
@@ -144,6 +144,19 @@ var sketch = function (p) {
         sourcevec.mult(REF_PLANE_RADIUS);
 
         vectorizedLine(p, origin, sourcevec);
+        vectorizedLine(p, origin, p.createVector(sourcevec.x, sourcevec.y, 0).normalize().mult(REF_PLANE_RADIUS));
+        //vectorizedLine(p, p.createVector(sourcevec.x, sourcevec.y, 0), sourcevec);
+        p.arc(0, 0, 0.8*rvec.mag(), 0.8*rvec.mag(), 0, alpha, p.OPEN, 50);
+        
+        p.push();
+        p.rotateX(90);
+        p.rotateY(alpha);
+        if (delta >= 0) {
+            p.arc(0, 0, 0.8*rvec.mag(), 0.8*rvec.mag(), 0, delta, p.OPEN, 50);
+        } else {
+            p.arc(0, 0, 0.8*rvec.mag(), 0.8*rvec.mag(), delta, 0, p.OPEN, 50);
+        }
+        p.pop()
 
         p.push();
         p.strokeWeight(3);
@@ -188,28 +201,43 @@ var sketch = function (p) {
         p.pop();
 
         // Reference plane (XY plane of BCRS, loosely speaking the Ecliptic plane)
-        // Draw this last so that the transparency works correctly (where the intention
-        // is to see the orbital ellipse through the plane).
+        // Draw this last so that the transparency works correctly.
         p.push();
-        p.ellipse(0, 0, REF_PLANE_RADIUS, REF_PLANE_RADIUS, 50);
+        p.stroke(mptab10.get('grey'));
+        for (let idelta=-60; idelta<90; idelta+=30) {
+            p.push();
+            p.translate(0, 0, REF_PLANE_RADIUS * p.sin(idelta));
+            p.ellipse(0, 0, REF_PLANE_RADIUS * p.cos(idelta), REF_PLANE_RADIUS * p.cos(idelta), 50);
+            p.pop();
+        }
+        for (let ialpha=30; ialpha<360; ialpha+=30) {
+            p.push();
+            p.rotateX(90);
+            p.rotateY(ialpha);
+            p.arc(0, 0, REF_PLANE_RADIUS, REF_PLANE_RADIUS, -90, 90, p.OPEN, 50);
+            p.pop();
+        }
         p.pop();
 
+        //Meridian indicating right ascension
         p.push();
+        p.strokeWeight(2);
         p.rotateX(90);
         p.arc(0, 0, REF_PLANE_RADIUS, REF_PLANE_RADIUS, -90, 90, p.OPEN, 50);
         p.rotateY(alpha);
         p.arc(0, 0, REF_PLANE_RADIUS, REF_PLANE_RADIUS, -90, 90, p.OPEN, 50);
         p.pop();
 
+        // Parallel indicating declination
         p.push();
+        p.strokeWeight(2);
         p.translate(0, 0, REF_PLANE_RADIUS * p.sin(delta));
         p.ellipse(0, 0, REF_PLANE_RADIUS * p.cos(delta), REF_PLANE_RADIUS * p.cos(delta), 50);
         p.pop();
 
         p.push();
-        p.noStroke();
         p.fill(mptab10.get('grey')[0], mptab10.get('grey')[1], mptab10.get('grey')[2], 100);
-        p.sphere(REF_PLANE_RADIUS, 50, 50);
+        p.ellipse(0, 0, REF_PLANE_RADIUS, REF_PLANE_RADIUS, 50);
         p.pop();
 
         if (tangentPlaneVisible) {
