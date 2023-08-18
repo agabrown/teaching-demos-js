@@ -42,8 +42,8 @@ var argPerihelionStep = 1;
 
 var explanationText;
 var explain;
-var showHelp = true;
-var helpVisible = true;
+var showHelp = false;
+var helpVisible = false;
 var helpButton;
 
 var guiVisible = true;
